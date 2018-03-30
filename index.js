@@ -89,7 +89,7 @@ class ConnectionMonitor {
 
   async genFileName() {
     const status = await this.exec('status');
-    const fileName = /input: file:\/\/(\/.*?) \)/.exec(status)[1];
+    const fileName = (/input: file:\/\/(\/.*?) \)/.exec(status) || ['', ''])[1];
 
     return fileName;
   }
@@ -112,7 +112,7 @@ class ConnectionMonitor {
     const fileName = this.fileToTrash;
     if (!fileName) return;
 
-    // trash(fileName);
+    trash(fileName);
     console.log(`trash ${fileName}`);
 
     const fileParsed = path.parse(fileName);
