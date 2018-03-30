@@ -1,0 +1,12 @@
+{
+  "name": "vlc-auto-delete",
+  "version": "1.0.0",
+  "description": "Automatically puts videos watched by VLC into the trash",
+  "main": "index.js",
+  "author": "Mark Kahn <m@vouchr.com>",
+  "license": "MIT",
+  "dependencies": {
+    "telnet-client": "^0.15.5",
+    "trash": "^4.3.0"
+  }
+}
