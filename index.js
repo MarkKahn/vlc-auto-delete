@@ -10,6 +10,7 @@ const skippedFiles = {};
 
 const CLEAN_CWD = '/Users/mark/Downloads/Videos/';
 const CLEAN_SH = '/Users/mark/Downloads/Videos/clean.sh';
+const PATHS_TO_TRASH = /\/Downloads\/(Torrents|Videos)\//;
 
 const INTROS = [
   {
@@ -91,7 +92,7 @@ async function monitor(connection) {
   async function trashCurrentFile() {
     const fileName = await genFileName();
 
-    if (trashedFiles[fileName]) return;
+    if (!PATHS_TO_TRASH.test(fileName) || trashedFiles[fileName]) return;
 
     trash(fileName);
     trashedFiles[fileName] = 1;
