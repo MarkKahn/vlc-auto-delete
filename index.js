@@ -6,9 +6,17 @@ const trash = require('trash');
 const childProcess = require('child_process');
 
 const trashedFiles = {};
+const skippedFiles = {};
 
 const CLEAN_CWD = '/Users/mark/Downloads/Videos/';
 const CLEAN_SH = '/Users/mark/Downloads/Videos/clean.sh';
+
+const INTROS = [
+  {
+    fileRx: /\/Bleach .*/i,
+    length: 90,
+  },
+];
 
 function connect() {
   return new Promise((resolve, reject) => {
@@ -51,19 +59,42 @@ async function monitor(connection) {
     const time = +await connection.exec('get_time');
     const length = +await connection.exec('get_length');
 
-    if (time >= length * 0.95) {
+    if (time < 10) {
+      skipIntro();
+    } else if (time >= length * 0.9) {
       trashCurrentFile();
     }
   }
 
-  async function trashCurrentFile() {
+  async function genFileName() {
     const status = await connection.exec('status');
-    const file = /input: file:\/\/(\/.*?) \)/.exec(status)[1];
+    const fileName = /input: file:\/\/(\/.*?) \)/.exec(status)[1];
 
-    if (trashedFiles[file]) return;
+    return fileName;
+  }
 
-    trash(file);
-    trashedFiles[file] = 1;
+  async function skipIntro() {
+    const fileName = await genFileName();
+
+    INTROS.forEach(intro => {
+      if (skippedFiles[fileName]) return;
+      if (intro.fileRx.test(fileName)) {
+        const timeToSkip = intro.length;
+
+        connection.exec(`seek ${timeToSkip}`);
+
+        skippedFiles[fileName] = 1;
+      }
+    });
+  }
+
+  async function trashCurrentFile() {
+    const fileName = await genFileName();
+
+    if (trashedFiles[fileName]) return;
+
+    trash(fileName);
+    trashedFiles[fileName] = 1;
 
     childProcess.exec(CLEAN_SH, { cwd: CLEAN_CWD }, () => {});
   }
