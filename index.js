@@ -137,6 +137,10 @@ class ConnectionMonitor {
     const isSameSeries = this.isSameSeries(fileParsed.base, nextFile);
 
     if (!isSameSeries) return;
+    const playlist = await this.exec('playlist');
+    const nextIsInPlaylist = playlist.indexOf(nextFile) >= 0;
+
+    if (nextIsInPlaylist) return;
 
     notifier.notify(
       {
